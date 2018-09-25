@@ -273,8 +273,6 @@ class EndDevice(object):
                              fopts=b'',
                              force_fcntdown_int=None):
         """
-        (EndDevice, bytes, bytes, bytes, bytes, bytes) -> (bytes)
-
         Creates the PHYPayload of a LoRaWAN DATA message with the specified lorawan_parameters. It does the FRMPayload
         encryption and calculates de MIC using the device's keys.
         :param frmpayload: plain text of the FRMPayload (bytes)
@@ -323,7 +321,6 @@ class EndDevice(object):
 
     def update_device_session(self, devaddr, appskey, nwkskey):
         """
-        (EndDevice, bytes, bytes, bytes) -> (None)
         Updates de identification of the devices corresponding to the current session. This could be used to update
         the short address (DevAddr) and session keys (AppSKey and NwkSKey) after a join-request and join-accept
         message interchange. After a session update the frame count value (FCnt) is reset.
