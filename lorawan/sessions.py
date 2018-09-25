@@ -226,7 +226,6 @@ class EndDevice(object):
                     rxdelay=lorawan_parameters.JOIN_ACCEPT_RXDELAY.DELAY1,
                     cflist=lorawan_parameters.JOIN_ACCEPT_CFLIST.NO_CHANNELS):
         """
-        (DeviceSessionManager, bytes, bytes, bytes, bytes, bytes) -> (bytes)
         Updates the session information and creates the PHYPayload of a join accept message to be sent to the DUT.
 
         :param devnonce: 2 bytes of the device nonce used in the join request message.
