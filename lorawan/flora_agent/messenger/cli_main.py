@@ -1,3 +1,30 @@
+"""
+User side simulator auxiliary module: CLI commands to be used on the User Side
+to simulate the messages from a Device Under Test.
+"""
+#################################################################################
+# MIT License
+#
+# Copyright (c) 2018, Pablo D. Modernell, Universitat Oberta de Catalunya (UOC).
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#################################################################################
 import os
 import click
 import json
@@ -54,7 +81,7 @@ def validate_fopts(ctx, param, fopts):
         fopts_bytes = bytes.fromhex(fopts)
         return fopts_bytes
     except ValueError:
-        raise click.BadParameter('Bad Frame Payload (e.g. 02).')
+        raise click.BadParameter('Bad Frame Options field (e.g. 02).')
 
 
 @click.command()
@@ -140,54 +167,6 @@ def send_actok():
     click.echo("Sending ACT OK")
     get_channel().basic_publish(exchange=message_queueing.DEFAULT_EXCHANGE,
                                 routing_key='mock.up.message.actok',
-                                body="")
-
-
-def validate_test_list(ctx, param, test_list_str):
-    name_list = test_list_str.split()
-    valid_names = ['act_01',
-                   'act_02',
-                   'act_03',
-                   'act_04',
-                   'fun_01',
-                   'fun_02',
-                   'fun_03',
-                   'end_loop']
-    test_list = []
-    for name in name_list:
-        if name not in valid_names:
-            raise click.BadParameter("Invalid Test Name: {}.".format(name))
-        else:
-            test_list.append("td_lorawan_"+name)
-    return " ".join(test_list)
-
-
-@click.command()
-@click.option('--tests', callback=validate_test_list, default="", type=str,
-              help="List of the tests to be executed as a string with the name of the tests separated with a space.")
-def send_session_config(tests):
-    """ Sends the session configuration information to the testing tool, specifying the test list."""
-    click.echo("Sending Configuration to Testing Tool.")
-    get_channel().basic_publish(exchange=message_queueing.DEFAULT_EXCHANGE,
-                                routing_key='mock.nwk.configure',
-                                body=tests)
-
-
-@click.command()
-def send_test_start():
-    """ Starts the testing tool."""
-    click.echo("Starting Testing Tool.")
-    get_channel().basic_publish(exchange=message_queueing.DEFAULT_EXCHANGE,
-                                routing_key='mock.testsuite.start',
-                                body="")
-
-
-@click.command()
-def send_terminate():
-    """ Starts the testing tool."""
-    click.echo("Terminating Testing Tool.")
-    get_channel().basic_publish(exchange=message_queueing.DEFAULT_EXCHANGE,
-                                routing_key='mock.testsuite.terminate',
                                 body="")
 
 

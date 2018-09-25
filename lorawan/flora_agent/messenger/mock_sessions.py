@@ -1,3 +1,29 @@
+"""
+User side simulator auxiliary module: end device mock session information.
+"""
+#################################################################################
+# MIT License
+#
+# Copyright (c) 2018, Pablo D. Modernell, Universitat Oberta de Catalunya (UOC).
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#################################################################################
 import random
 import struct
 
@@ -8,11 +34,12 @@ import conformance_testing.test_errors as test_errors
 
 
 class EndDeviceMock(lorawan.sessions.EndDevice):
+    """ This is an lorawan.sessions.EndDevice that also mantains the downlink counter
+        (see Test Application Protocol) and is ready to send Join Request messages and parse
+        Join Accept messages to update its session information.
+    """
     def __init__(self, devaddr, deveui, appkey, appskey, nwkskey):
-        self.ABP_DevAddr = devaddr
-        self.ABP_AppSKey = appskey
-        self.ABP_NwkSKey = nwkskey
-        self.download_counter = 0
+        self.downlink_counter = 0
         super().__init__(ctx_test_tool_service=None,
                          devaddr=devaddr,
                          deveui=deveui,
@@ -20,15 +47,9 @@ class EndDeviceMock(lorawan.sessions.EndDevice):
                          appskey=appskey,
                          nwkskey=nwkskey)
 
-    def reset_apb_keys(self):
-        self.update_device_session(devaddr=self.ABP_DevAddr,
-                                   appskey=self.ABP_AppSKey,
-                                   nwkskey=self.ABP_NwkSKey)
-
     def get_join_request(self, appeui):
         """
-        (EndDevice, bytes) -> (bytes)
-        Creates a
+        Creates a Join Request message.
         :param appeui: bytes of the AppEUI
         :return: bytes of the lorawan join request (phypayload)
         """
@@ -54,9 +75,8 @@ class EndDeviceMock(lorawan.sessions.EndDevice):
 
     def parse_join_accept(self, join_accept_phypayload):
         """
-        (EndDeviceMock, bytes) -> None
         Updates the keys and the device address with the information contained in a join accept message.
-        :param join_accept_phypayload:
+        :param join_accept_phypayload: byte sequence of the Join Accept PHYPayload.
         :return:
         """
         assert join_accept_phypayload[0:1] == lorawan.lorawan_parameters.general.MHDR.JOIN_ACCEPT

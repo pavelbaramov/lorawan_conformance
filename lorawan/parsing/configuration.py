@@ -43,13 +43,26 @@ class DeviceID(object):
     }
     """
 
-    def __init__(self, json_device_id_str=None):
+    def __init__(self, 
+                 json_device_id_str=None, 
+                 devaddr_bytes=None,
+                 deveui_bytes=None,
+                 appkey_bytes=None,
+                 appskey_bytes=None,
+                 nwkskey_bytes=None):
         """
         (DeviceID, str) -> (DeviceID)
         :param json_device_id_str: string-json formatted.
         """
         if json_device_id_str:
             self.device_id_dict = json.loads(json_device_id_str)
+        elif devaddr_bytes and deveui_bytes and appkey_bytes and appskey_bytes and nwkskey_bytes:
+            self.device_id_dict = dict()
+            self.device_id_dict["DevAddr"] = base64.b64encode(devaddr_bytes)
+            self.device_id_dict["DevEUI"] = base64.b64encode(deveui_bytes)
+            self.device_id_dict["AppKey"] = base64.b64encode(appkey_bytes)
+            self.device_id_dict["AppSKey"] = base64.b64encode(appskey_bytes)
+            self.device_id_dict["NwkSKey"] = base64.b64encode(nwkskey_bytes)
         else:
             self.device_id_dict = {
                 "DevAddr": "ASgpnw==",

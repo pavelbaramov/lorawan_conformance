@@ -24,9 +24,11 @@ Main module containing the main entry point of the Agent Bridge.
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #################################################################################
+import click
+
 from lorawan.flora_agent.bridge.agent_bridge import SPFBridge
 
-
+@click.command()
 def agent_main():
     """ Agent Bridge service entry point."""
     spf_bridge = SPFBridge()
@@ -36,8 +38,5 @@ def agent_main():
     print("Ready to forward.")
     spf_bridge.consume_start()
 
-
-if __name__ == '__main__':
-    agent_main()
 
 
