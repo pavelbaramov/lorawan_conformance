@@ -7,6 +7,20 @@
 
 1. Create a user account [F-Interop](www.f-interop.eu) in [https://go.f-interop.eu/](https://go.f-interop.eu/).
 2. Configure the LoRa gateway local.conf file to send the packets to an IP and UDP port in your LAN.
+    * **local.conf** example:
+
+    		                                                      
+		           {"server_address": "192.168.0.129",
+		           "serv_port_up": 5555,                          
+		           "serv_port_down": 5555,                        
+		           "serv_enabled": true,
+		           "keepalive_interval": 10,        
+		           "stat_interval": 30,             
+		           "push_timeout_ms": 100,                        
+		           "forward_crc_valid": true,                     
+		           "forward_crc_error": false,                    
+		           "forward_crc_disabled": false }
+		           
 3. Sign in and select the F-LoRa LoRaWAN conformance test.
 4. Provide the device personalization information (ABP) using the web GUI:
     * DevEUI
@@ -15,7 +29,7 @@
 5. Select the test cases to be executed and follow instructions to install the Agent. The following environment 
 variables must be defined:
     * AMQP_URL: URL of the AMQP broker with the connection parameters.
-    * PF_IP: IP of the Gateway with the Packet Forwarder (same LAN of the agent).
+    * PF_IP: IP of the interface connected to the Gateway with the Packet Forwarder (the IP configured in the Gateway).
     * PF_UDP_PORT: UDP port used by the Packer Forwarder.
 6. Start the Agent using the **flora_start_bridge** command.
 6. Press the **Start** button in the web GUI.
