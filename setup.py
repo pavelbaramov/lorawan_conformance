@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 MAJOR = 1
-MINOR = 0
+MINOR = 1
 PATCH = 0
 VERSION = "{}.{}.{}".format(MAJOR, MINOR, PATCH)
 
@@ -53,9 +53,17 @@ setup(name=name,
       entry_points={
           'console_scripts': [
               'flora_start_bridge = lorawan.flora_agent.bridge.bridge_main:agent_main',
+              'flora_msg_forging = lorawan.flora_agent.messenger.agent_mock:agent_mock_main',
               'flora_sniffer = lorawan.flora_agent.packet_sniffer.sniffer_main:sniff',
               'flora_log_tas = lorawan.flora_agent.logger.log_main:log_test_session_coordinator',
               'flora_log_all = lorawan.flora_agent.logger.log_main:log_all',
+              'flora_send = lorawan.flora_agent.messenger.cli_main:send',
+              'flora_configure_device_mock = lorawan.flora_agent.messenger.cli_main:configure_device_mock',
+              'flora_send_actok = lorawan.flora_agent.messenger.cli_main:send_actok',
+              'flora_send_join = lorawan.flora_agent.messenger.cli_main:send_join',
+              'flora_send_pong = lorawan.flora_agent.messenger.cli_main:send_pong',
+              'flora_show_info = lorawan.flora_agent.messenger.cli_main:show_info'
+
           ]
       },
       )
