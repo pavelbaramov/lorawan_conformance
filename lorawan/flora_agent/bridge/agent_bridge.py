@@ -112,6 +112,7 @@ class SPFBridge(message_queueing.MqInterface):
 
     def listen_spf(self):
         """ Starts to listen for UDP uplink messages from the gateway."""
+        self.udp_listener.setDaemon(True)
         self.udp_listener.start()
 
     def process_dlmsg(self, ch, method, properties, body):
