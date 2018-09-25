@@ -74,7 +74,7 @@ def display_agent_tutorial(session_coordinator):
         name="7-Set AMQP Broker URL:",
         value='e.g.: export AMQP_URL="'+session_coordinator.amqp_url+'"'))
     agent_display.add_field(ui_reports.ParagraphField(
-        name="8-Set Packet Forwarder IP (LoRa Gateway IP in your LAN): ",
+        name="8-Set the IP of the interface connected to the Gateway with the Packet Forwarder (see step 6): ",
         value='e.g.: export PF_IP="XXX.XXX.XXX.XXX"'))
     agent_display.add_field(ui_reports.ParagraphField(
         name="9-Set Packet Forwarder UDP PORT (LoRa Gateway UDP Port): ",
