@@ -290,5 +290,6 @@ class RPCRequest(object):
 
         while self.response_body is None:
             self.connection.process_data_events()
+            time.sleep(0.1)
         return self.response_body
 
