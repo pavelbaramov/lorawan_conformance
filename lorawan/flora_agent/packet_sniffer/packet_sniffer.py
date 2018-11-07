@@ -60,14 +60,14 @@ class PacketSniffer(message_queueing.MqInterface):
         """ Handler of the donwlink messages."""
         nwk_message_down = lorawan.parsing.flora_messages.GatewayMessage(json_ttm_str=body.decode())
         phypayload = nwk_message_down.get_phypaload_bytes()
-        print("DOWNLINK, {0:10.2f}:".format(time.time()))
+        print("# DOWNLINK, {0:10.2f}:".format(time.time()))
         print(utils.bytes_to_pcap_str(phypayload))
 
     def handle_sniffer_up_msg(self, ch, method, properties, body):
         """ Handler of the uplink messages."""
         nwk_message_up = lorawan.parsing.flora_messages.GatewayMessage(json_ttm_str=body.decode())
         phypayload = nwk_message_up.get_phypaload_bytes()
-        print("  UPLINK, {0:10.2f}:".format(time.time()))
+        print("# UPLINK, {0:10.2f}:".format(time.time()))
         print(utils.bytes_to_pcap_str(phypayload))
 
 
