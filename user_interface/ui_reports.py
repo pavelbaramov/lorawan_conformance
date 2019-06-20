@@ -33,6 +33,7 @@ import time
 
 from user_interface import API_VERSION
 from message_queueing import DEFAULT_EXCHANGE
+import user_interface.ui_errors
 
 
 LEVEL_ERR = "error"
@@ -47,56 +48,23 @@ class MessageProperties(object):
                  timestamp=int(time.time()),
                  reply_to="",
                  correlation_id=str(uuid4())):
-        self._properties = {
-            "content_type": content_type,
-            "message_id": message_id,
-            "timestamp": timestamp,
-            "reply_to": reply_to,
-            "correlation_id": correlation_id
+        self.content_type = content_type
+        self.message_id = message_id
+        self.timestamp = timestamp
+        self.reply_to = reply_to
+        self.correlation_id = correlation_id
+
+    def to_dict(self):
+        return {
+            "content_type": self.content_type,
+            "message_id": self.message_id,
+            "timestamp": self.timestamp,
+            "reply_to": self.reply_to,
+            "correlation_id": self.correlation_id
         }
 
     def __str__(self):
-        return json.dumps(self._properties, indent=4, sort_keys=True)
-
-    @property
-    def content_type(self):
-        return self._properties["content_type"]
-
-    @content_type.setter
-    def content_type(self, message_type):
-        self._properties["content_type"] = message_type
-
-    @property
-    def message_id(self):
-        return self._properties["message_id"]
-
-    @message_id.setter
-    def message_id(self, message_id):
-        self._properties["message_id"] = message_id
-
-    @property
-    def timestamp(self):
-        return self._properties["timestamp"]
-
-    @timestamp.setter
-    def timestamp(self, timestamp):
-        self._properties["timestamp"] = timestamp
-
-    @property
-    def reply_to(self):
-        return self._properties["reply_to"]
-
-    @reply_to.setter
-    def reply_to(self, reply_to):
-        self._properties["reply_to"] = reply_to
-
-    @property
-    def correlation_id(self):
-        return self._properties["correlation_id"]
-
-    @correlation_id.setter
-    def correlation_id(self, correlation_id):
-        self._properties["correlation_id"] = correlation_id
+        return json.dumps(self.to_dict(), indent=4, sort_keys=True)
 
 
 class SessionConfigurationBody(object):
@@ -108,142 +76,106 @@ class SessionConfigurationBody(object):
                  session_id="",
                  testing_tools="f-interop/flora",
                  users=None):
-        if json_session_configuration:
-            self._body = json.loads(json_session_configuration)
+
+        self._api_version = api_version
+        if not testcases:
+            self.testcases = []
         else:
-            self._body = {
-                "_api_version": api_version,
-                "testcases": testcases
+            self.testcases = testcases
+
+    @classmethod
+    def build_from_json(cls, json_str):
+        session_configuration_dict = json.loads(json_str)
+        if set(session_configuration_dict.keys()).issubset({'api_version', 'message_id',
+                                               'testcases', 'session_id',
+                                               'testing_tools', 'users'}):
+            return cls(**session_configuration_dict)
+        else:
+            raise user_interface.ui_errors.SessionConfigurationBodyError(
+                "Error in the provided parameters of SessionConfigurationBody: {json_str}")
+
+    def to_dict(self):
+        return {
+                "_api_version": self._api_version,
+                "testcases": self.testcases
             }
-            if not testcases:
-                self._body["testcases"] = []
 
     def __str__(self):
-        return json.dumps(self._body)
-
-    @property
-    def _api_version(self):
-        if "_api_version" in self._body:
-            return self._body["_api_version"]
-
-    @_api_version.setter
-    def _api_version(self, _api_version):
-        self._body["_api_version"] = _api_version
-
-    @property
-    def testcases(self):
-        if "testcases" in self._body:
-            return self._body["testcases"]
-
-    @testcases.setter
-    def testcases(self, testcases):
-        self._body["testcases"] = testcases
+        return json.dumps(self.to_dict(), indent=4, sort_keys=True)
 
 
 class InputField(object, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __init__(self, name="default name", label="default label", value="default value"):
-        self._field = {
-                    "name": name,
-                    "type": None,
-                    "label": label,
-                    "value": value
-                }
+        self.name = name
+        self.label = label
+        self.value = value
+        self.type = None
+
+    def to_dict(self):
+        return {
+                "name": self.name,
+                "type": self.type,
+                "label": self.label,
+                "value": self.value
+            }
 
     def __str__(self):
-        return json.dumps(self._field, indent=4, sort_keys=True)
-
-    @property
-    def type(self):
-        return self._field["type"]
-
-    @property
-    def field_dict(self):
-        return self._field
-
-    @property
-    def name(self):
-        return self._field["name"]
-
-    @name.setter
-    def name(self, name):
-        self._field["name"] = name
-
-    @property
-    def label(self):
-        return self._field["label"]
-
-    @label.setter
-    def label(self, label):
-        self._field["label"] = label
-
-    @property
-    def value(self):
-        return self._field["value"]
-
-    @value.setter
-    def value(self, value):
-        self._field["value"] = value
+        return json.dumps(self.to_dict(), indent=4, sort_keys=True)
 
 
 class ParagraphField(InputField):
     def __init__(self, name="default name", label="default label", value="sthg2show"):
         super().__init__(name=name, label=label, value=value)
-        self._field["type"] = "p"
+        self.type = "p"
 
     def add_line(self, new_line):
-        self._field["value"] += "\n"+new_line
+        self.value += "\n"+new_line
 
 
 class TextInputField(InputField):
     def __init__(self, name="default name", label="default label", value="default value"):
         super().__init__(name=name, label=label, value=value)
-        self._field["type"] = "text"
+        self.type = "text"
 
 
 class ButtonInputField(InputField):
     def __init__(self, name="default name", label="default label", value="default value"):
         super().__init__(name=name, label=label, value=value)
-        self._field["type"] = "button"
+        self.type = "button"
 
 
 class InputFormBody(object, metaclass=abc.ABCMeta):
     def __init__(self, title="Input Title", level=LEVEL_INFO, tag_key=None, tag_value=None):
-        self._body = {
-            "title": title,
-            "level": level,
-            "fields": []
-        }
+        self.title = title
+        self.level = level
+        self.fields = []
         if tag_key and tag_value:
-            self._body["tags"] = {tag_key: tag_value}
+            self.tags = {tag_key: tag_value}
+        else:
+            self.tags = None
+
+    def to_dict(self):
+        ret_dict = {
+            "title": self.title,
+            "level": self.level,
+            "fields": self.fields
+        }
+        if self.tags:
+            ret_dict["tags"] = self.tags
+        return ret_dict
 
     def __str__(self):
-        return json.dumps(self._body, indent=4, sort_keys=True)
-
-    @property
-    def title(self):
-        return self._body["title"]
-
-    @title.setter
-    def title(self, title):
-        self._body["title"] = title
-
-    @property
-    def level(self):
-        return self._body["level"]
-
-    @level.setter
-    def level(self, level):
-        self._body["level"] = level
+        return json.dumps(self.to_dict(), indent=4, sort_keys=True)
 
     def add_field(self, new_field):
-        self._body["fields"].append(new_field.field_dict)
+        self.fields.append(new_field.to_dict())
 
     def get_parsed_reply(self, reply_body):
         """ Returns a dict with the response values {name:value}."""
         reply = json.loads(reply_body.decode())
         parsed_reply = dict()
-        for field in self._body["fields"]:
+        for field in self.fields:
             for reply_field in reply["fields"]:
                 if field["name"] in reply_field:
                     parsed_reply[field["name"]] = reply_field[field["name"]]
