@@ -235,7 +235,7 @@ class TestSessionCoordinator(message_queueing.MqInterface):
             json.dumps(session_configuration_bytes.decode(), indent=4, sort_keys=True)),
                                      key_prefix=message_broker.service_names.test_session_coordinator)
 
-        config = ui_reports.SessionConfigurationBody(json_session_configuration=session_configuration_bytes.decode())
+        config = ui_reports.SessionConfigurationBody.build_from_json(json_str=session_configuration_bytes.decode())
 
         self.requested_tests = ["td_lorawan_act_01"]
         if config.testcases:

@@ -1,5 +1,11 @@
 DOCKER_REGISTRY = dev.so.f-interop.eu:5000
 
+up:
+	docker-compose up --force-recreate
+
+down:
+	docker-compose down
+
 build_image:
 	docker build -t flora_test_application_server -f ./containers/test_application_server/Dockerfile .
 

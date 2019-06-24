@@ -60,7 +60,7 @@ def display_agent_tutorial(session_coordinator):
         value='e.g. pip install virtualenv'))
     agent_display.add_field(ui_reports.ParagraphField(
         name="3-Create a Python virtual environment:",
-        value='e.g. virtualenv --python=python3.5 venv'))
+        value='e.g. virtualenv --python python3.5 venv'))
     agent_display.add_field(ui_reports.ParagraphField(
         name="4-Activate virtual environment:",
         value='e.g. source venv/bin/activate'))

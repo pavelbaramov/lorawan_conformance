@@ -69,7 +69,6 @@ class MessageProperties(object):
 
 class SessionConfigurationBody(object):
     def __init__(self,
-                 json_session_configuration=None,
                  api_version=API_VERSION,
                  message_id="",
                  testcases=None,
