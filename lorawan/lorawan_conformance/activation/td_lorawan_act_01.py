@@ -48,7 +48,7 @@ class TestAppManager(conformance_testing.test_step_sequence.TestManager):
                                                            step_name="S2ActokFinalStep",
                                                            next_step=None)
         self.add_step_description(step_name="Step 2: S2ActokFinalStep",
-                                  description=("The test is expecting a Test Activation Ok message with the current\n"
+                                  description=("The test is expecting a Test Activation Ok message with the current "
                                                "downlink counter\n"
                                                "- Reception from DUT: TAOK message with the downlink counter.\n"
                                                "- TAS sends: none"))
@@ -61,8 +61,8 @@ class TestAppManager(conformance_testing.test_step_sequence.TestManager):
         self.add_step_description(step_name="Step 1: S1DataToActivate",
                                   description=("Wait any data from the DUT to activate Test Mode.\n"
                                                "- Reception from DUT: DATA packet.\n"
-                                               "- TAS sends: Test Mode activation message to the DUT"
-                                               "(DL packet with payload 0x01010101 sent to port 224).\n"
+                                               "- TAS sends: Test Mode activation message to the DUT "
+                                               "(DL packet with payload 0x01010101 sent to port 224). "
                                                "The payload is encrypted with the AppSKey.\n"))
 
         # ------------------------------------------------------------------------------------------------

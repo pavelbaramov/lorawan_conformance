@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+    <script src="static/js/application.js"></script>
+    <!--    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+<hr>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<ul>
+    {% for message in messages %}
+    <li>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
+<hr>
+<div class="container">
+    <div class="jumbotron">
+        <h1>LoRaWAN Conformance Testing</h1>
+    </div>
+</div>
+
+
+<div class="container" id="content">
+    <div class="row" id="main_window">
+        <div class="row" id="test_control" hidden>
+            <div class="row" id="device_config" hidden>
+                <hr>
+                <form action="" id="device_config_form">
+                    <label for="dev_eui">DevEUI:</label><br>
+                    <input type="text" id="dev_eui" name="dev_eui" value="0004a30b001adbe5"><br>
+                    <label for="dev_addr">DevAddr:</label><br>
+                    <input type="text" id="dev_addr" name="dev_addr" value="26011cf1"><br>
+                    <label for="app_key">AppKey:</label><br>
+                    <input type="text" id="app_key" name="app_key" value="2b7e151628aed2a6abf7158809cf4f3c"><br><br>
+                    <input type="submit" value="Set ABP config">
+                </form>
+                <hr>
+            </div>
+            <div class="row" id="device_show" hidden>
+                <hr>
+                <p>Device Under Test ABP Credentials.</p>
+                <p id="show_dev_eui">DevEUI: </p>
+                <p id="show_dev_addr">DevAddr: </p>
+                <p id="show_app_key">AppKey: </p>
+                <hr>
+            </div>
+            <div class="row" id="start_testing" hidden>
+                <hr>
+                <form action="" id="start_testing_form">
+                    <p>Configure and run the Agent and press START when ready.</p>
+                    <input type="submit" value="Start Testing">
+                </form>
+                <hr>
+            </div>
+        </div>
+        <div class="row" id="center_alerts">
+            <hr>
+            <h3>Alerts:</h3>
+
+            <div class="row" id="user_alerts">
+            </div>
+            <hr>
+        </div>
+
+        <div class="row" id="main_messages">
+            <hr>
+            <h3>Tests details:</h3>
+
+            <div class="row" id="test_details">
+            </div>
+            <hr>
+        </div>
+    </div>
+    <div class="row" id="left_bar" >
+        <hr>
+        <h3>Tests list:</h3>
+
+        <div class="row" id="test_list">
+        </div>
+        <hr>
+    </div>
+
+</div>
+
+
+</body>
+</html>

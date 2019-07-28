@@ -1,11 +1,27 @@
 version: '3'
 
 services:
+  message-broker:
+    image: rabbitmq:3-management
+    environment:
+      # RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+      RABBITMQ_DEFAULT_USER: "rabbitmq"
+      RABBITMQ_DEFAULT_PASS: "rabbitmq"
+      RABBITMQ_DEFAULT_VHOST: "/"
+    ports:
+      - "8080:15672"
+      - "5672:5672"
+    expose:
+      - 15672
+      - 5672
+
   test-application-server:
+#    depends_on:
+#      - message-broker
     build:
       context: .
       dockerfile: docker_images/test_application_server/Dockerfile
     env_file:
       - env_var
     restart: on-failure
-    cmd: ["python3", "/test_application_server/tas_application_server_main.py"]
+    command: ["python3", "/test_application_server/tas_application_server_main.py"]

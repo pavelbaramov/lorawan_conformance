@@ -42,6 +42,7 @@ class TestSessionCoordinator(message_queueing.MqInterface):
     of the selected tests. It is a MqInterface, it can communicate with the RMQ broker in order to receive uplink
     messages and send downlink messages to the agent (using the correct routing key).
     """
+
     def __init__(self):
         """
         The constructor initializes the downlink counter of the test session (defined in the test application
@@ -67,6 +68,15 @@ class TestSessionCoordinator(message_queueing.MqInterface):
         log_all_routing_key = "log.#"
         self.bind_queue(queue_name='logger_all', routing_key=log_all_routing_key)
         # << End declare log queue  -------------------------------------------------------
+        self.declare_queue(queue_name='display_gui', auto_delete=False, exclusive=False)
+        self.bind_queue(queue_name='display_gui',
+                        routing_key=message_broker.routing_keys.ui_all_users + '.display')
+        self.declare_queue(queue_name='configuration_request', auto_delete=False, exclusive=False)
+        self.bind_queue(queue_name='configuration_request',
+                        routing_key=message_broker.routing_keys.configuration_request)
+        self.declare_queue(queue_name='request_action_gui', auto_delete=False, exclusive=False)
+        self.bind_queue(queue_name='request_action_gui',
+                        routing_key=message_broker.routing_keys.ui_all_users + '.request')
 
     @property
     def reset_dut(self):
@@ -115,7 +125,7 @@ class TestSessionCoordinator(message_queueing.MqInterface):
                                      key_prefix=message_broker.service_names.test_session_coordinator)
         start_request_body = ui_reports.InputFormBody(title="Start LoRaWAN testing tool")
         start_request_body.add_field(ui_reports.ButtonInputField(name="START", value=1))
-        request_start = ui_reports.RPCRequest(request_key=routing_keys.ui_all_users+'.request',
+        request_start = ui_reports.RPCRequest(request_key=routing_keys.ui_all_users + '.request',
                                               channel=self.channel,
                                               body=str(start_request_body))
 
@@ -141,6 +151,7 @@ class TestSessionCoordinator(message_queueing.MqInterface):
 
     def get_device_from_gui(self):
         """ Requests and validates the Device information using the GUI."""
+
         class InvalidHexStringInFieldError(Exception):
             pass
 
@@ -156,6 +167,7 @@ class TestSessionCoordinator(message_queueing.MqInterface):
                     )
             except ValueError:
                 raise InvalidHexStringInFieldError('{} is an invalid field'.format(field_str))
+
         ####################################################################################################
         while "The user doesn't enter a valid device information":
             try:
@@ -233,7 +245,7 @@ class TestSessionCoordinator(message_queueing.MqInterface):
         session_configuration_bytes = request_config.wait_response(timeout_seconds=10)
         ui_publisher.testingtool_log(msg_str="Received configuration from GUI: \n{}".format(
             json.dumps(session_configuration_bytes.decode(), indent=4, sort_keys=True)),
-                                     key_prefix=message_broker.service_names.test_session_coordinator)
+            key_prefix=message_broker.service_names.test_session_coordinator)
 
         config = ui_reports.SessionConfigurationBody.build_from_json(json_str=session_configuration_bytes.decode())
 
@@ -276,13 +288,11 @@ class TestSessionCoordinator(message_queueing.MqInterface):
             result_report.add_field(fail_details_paragraph)
             result_report.level = ui_reports.LEVEL_ERR
         step_error = ui_reports.InputFormBody(
-                title="{TC}: Step Fail".format(TC=test_name),
-                tag_key=test_name,
-                tag_value=" ")
+            title="{TC}: Step Fail".format(TC=test_name),
+            tag_key=test_name,
+            tag_value=" ")
         step_error.add_field(fail_message_paragraph)
         step_error.add_field(fail_details_paragraph)
         step_error.level = ui_reports.LEVEL_ERR
         ui_publisher.display_on_gui(msg_str=str(step_error),
                                     key_prefix=message_broker.service_names.test_session_coordinator)
-
-

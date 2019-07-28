@@ -35,7 +35,6 @@ from user_interface import API_VERSION
 from message_queueing import DEFAULT_EXCHANGE
 import user_interface.ui_errors
 
-
 LEVEL_ERR = "error"
 LEVEL_HL = "highlighted"
 LEVEL_INFO = "info"
@@ -86,8 +85,8 @@ class SessionConfigurationBody(object):
     def build_from_json(cls, json_str):
         session_configuration_dict = json.loads(json_str)
         if set(session_configuration_dict.keys()).issubset({'api_version', 'message_id',
-                                               'testcases', 'session_id',
-                                               'testing_tools', 'users'}):
+                                                            'testcases', 'session_id',
+                                                            'testing_tools', 'users'}):
             return cls(**session_configuration_dict)
         else:
             raise user_interface.ui_errors.SessionConfigurationBodyError(
@@ -95,9 +94,9 @@ class SessionConfigurationBody(object):
 
     def to_dict(self):
         return {
-                "_api_version": self._api_version,
-                "testcases": self.testcases
-            }
+            "_api_version": self._api_version,
+            "testcases": self.testcases
+        }
 
     def __str__(self):
         return json.dumps(self.to_dict(), indent=4, sort_keys=True)
@@ -111,17 +110,50 @@ class InputField(object, metaclass=abc.ABCMeta):
         self.value = value
         self.type = None
 
+    @classmethod
+    def build_from_json(cls, json_input_field):
+        input_field_dict = json.loads(json_input_field)
+        field_type = input_field_dict.get('type')
+        if set(input_field_dict.keys()).issubset({'name', 'label', 'value', 'type'}) and \
+                field_type is not None:
+            if field_type == 'p':
+                return ParagraphField(name=input_field_dict['name'],
+                                      label=input_field_dict['label'],
+                                      value=input_field_dict['value'])
+            elif field_type == 'text':
+                return TextInputField(name=input_field_dict['name'],
+                                      label=input_field_dict['label'],
+                                      value=input_field_dict['value'])
+            elif field_type == 'button':
+                return ButtonInputField(name=input_field_dict['name'],
+                                        label=input_field_dict['label'],
+                                        value=input_field_dict['value'])
+            else:
+                raise user_interface.ui_errors.UnsupportedFieldTypeError(
+                    "Error in the provided parameters of InputField: {json_str}")
+        else:
+            raise user_interface.ui_errors.InputFieldError(
+                "Error in the provided parameters of InputField: {json_str}")
+
     def to_dict(self):
         return {
-                "name": self.name,
-                "type": self.type,
-                "label": self.label,
-                "value": self.value
-            }
+            "name": self.name,
+            "type": self.type,
+            "label": self.label,
+            "value": self.value
+        }
 
     def __str__(self):
         return json.dumps(self.to_dict(), indent=4, sort_keys=True)
 
+    def to_html(self):
+        if self.label == 'default label':
+            html_str = ''
+        else:
+            html_str = f'<label for="{self.name}">{self.label}</label>'
+
+        html_str += f'<input id="{self.name}" type="{self.type}" name="{self.name}" value="{self.value}">'
+        return html_str
 
 class ParagraphField(InputField):
     def __init__(self, name="default name", label="default label", value="sthg2show"):
@@ -129,7 +161,17 @@ class ParagraphField(InputField):
         self.type = "p"
 
     def add_line(self, new_line):
-        self.value += "\n"+new_line
+        self.value += "\n" + new_line
+
+    def to_html(self):
+        if self.label == 'default label':
+            html_str = ''
+        else:
+            html_str = f'<label for="{self.name}">{self.label}</label>'
+
+        html_str += f'<p id="{self.name}" type="{self.type}" name="{self.name}">{self.name}\n{self.value}</p>'
+
+        return html_str
 
 
 class TextInputField(InputField):
@@ -152,16 +194,33 @@ class InputFormBody(object, metaclass=abc.ABCMeta):
         if tag_key and tag_value:
             self.tags = {tag_key: tag_value}
         else:
-            self.tags = None
+            self.tags = {"": ""}
+
+    @classmethod
+    def build_from_json(cls, json_str):
+        input_form_body_dict = json.loads(json_str)
+        if set(input_form_body_dict.keys()).issubset({'title', 'level', 'fields',
+                                                      'tags'}):
+            tag_key = list(input_form_body_dict['tags'])[0]
+            tag_value = input_form_body_dict['tags'][tag_key]
+            form_body = cls(title=input_form_body_dict['title'],
+                            level=input_form_body_dict['level'],
+                            tag_key=tag_key,
+                            tag_value=tag_value)
+            for field in input_form_body_dict['fields']:
+                form_body.add_field(InputField.build_from_json(json.dumps(field)))
+            return form_body
+        else:
+            raise user_interface.ui_errors.InputFormBody(
+                "Error in the provided parameters of InputFormBody: {json_str}")
 
     def to_dict(self):
         ret_dict = {
             "title": self.title,
             "level": self.level,
-            "fields": self.fields
+            "fields": self.fields,
+            "tags": self.tags
         }
-        if self.tags:
-            ret_dict["tags"] = self.tags
         return ret_dict
 
     def __str__(self):
@@ -181,6 +240,17 @@ class InputFormBody(object, metaclass=abc.ABCMeta):
                     break
 
         return parsed_reply
+
+    def to_html(self):
+        tag_to_id = ""
+        if self.tags:
+            tag_key = list(self.tags)[0]
+            tag_to_id = f'id="{tag_key}_{self.tags[tag_key]}"'
+        html_str = f'<div {tag_to_id}><p>{self.title}</p>'
+        for field in self.fields:
+            html_str += InputField.build_from_json(json.dumps(field)).to_html()
+        html_str += '</div>'
+        return html_str
 
 
 class RPCRequest(object):
@@ -223,4 +293,3 @@ class RPCRequest(object):
             self.connection.process_data_events()
             time.sleep(0.1)
         return self.response_body
-

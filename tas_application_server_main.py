@@ -106,9 +106,9 @@ def testing_app_main():
                         test_module = test_modules[test_name]
                     except KeyError:
                         raise test_errors.UnknownTestError(test_name)
-
                     ui_publisher.testingtool_log(msg_str="Selected test: {0}".format(test_name),
                                                  key_prefix=message_broker.service_names.test_session_coordinator)
+
 
                     test_session_coordinator.current_test = test_module.TestAppManager(test_session_coordinator)
                     ui_publisher.testingtool_log(msg_str="Test manager loaded: {}".format(test_name),

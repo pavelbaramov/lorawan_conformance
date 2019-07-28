@@ -95,7 +95,10 @@ class Step(object, metaclass=abc.ABCMeta):
             NStep=step_name,
             Rcv=received_str)
         step_report.add_field(ui_reports.ParagraphField(name="Completed Step: {}".format(self.name),
-                                                        value=step_info_str))
+                                                        value=""))
+        for line in step_info_str.split("\n"):
+            step_report.add_field(ui_reports.ParagraphField(name="",
+                                                            value=line))
         if sending:
             step_report.add_field(ui_reports.ParagraphField(name="Sending to DUT:",
                                                             value=utils.bytes_to_text(sending)))
@@ -145,7 +148,10 @@ class TestManager(object, metaclass=abc.ABCMeta):
 
     def add_step_description(self, step_name, description):
         """ Adds a text field in the test case description to be shown in the GUI."""
-        self.test_label.add_field(ui_reports.ParagraphField(name=step_name, value=description))
+        description_lines = description.split('\n')
+        self.test_label.add_field(ui_reports.ParagraphField(name=step_name, value=""))
+        for line in description_lines:
+            self.test_label.add_field(ui_reports.ParagraphField(name="", value=line))
 
     def start_test(self):
         ui_publisher.display_on_gui(msg_str=self.get_testcase_str(),
